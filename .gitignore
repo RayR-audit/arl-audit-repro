@@ -1,0 +1,16 @@
+# credentials / local state — never publish
+.opsec
+.opsec/
+.env
+.env.*
+*.pem
+*.key
+
+# local-only data & state
+registry_gap/v4_state.json
+registry_gap/v4_watchdog_state.json
+registry_gap/v4_results_partial.json
+registry_gap/*.log
+endpoint/data/
+__pycache__/
+*.pyc

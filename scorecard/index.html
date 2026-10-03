@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Allocation Readiness Level — Public Scorecard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background: #f4f4f8;
+    color: #1a1a2e;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 40px 24px;
+    line-height: 1.5;
+  }
+  h1 { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+  h2 { font-size: 18px; font-weight: 700; margin: 30px 0 10px; }
+  .sub { color: #4a4a5e; font-size: 15px; margin-bottom: 20px; }
+  .banner {
+    background: #fff3d6; border: 1px solid #e8c96a; color: #6b4d00;
+    border-radius: 8px; padding: 12px 16px; font-size: 14px; margin-bottom: 24px;
+  }
+  .banner strong { font-weight: 800; }
+  .verdict-strip {
+    background: #1a1a2e; color: #fff; border-radius: 10px; padding: 20px 24px; margin-bottom: 24px;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+  }
+  .verdict-strip .big { font-size: 22px; font-weight: 800; }
+  .verdict-strip .meta { font-size: 13px; opacity: 0.85; }
+  .table-wrap { background: #fff; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e4e4ee; vertical-align: top; }
+  th { font-weight: 700; color: #4a4a5e; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .arl { font-weight: 800; font-size: 18px; white-space: nowrap; }
+  .arl.arl-0 { color: #c0392b; }
+  .arl.arl-1 { color: #c0392b; }
+  .arl.arl-2, .arl.arl-3 { color: #b7791f; }
+  .arl.arl-4, .arl.arl-5 { color: #1a5c1a; }
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .tag.red { background: #fde8e8; color: #a02020; }
+  .tag.yellow { background: #fff3d6; color: #8a5a00; }
+  .tag.green { background: #e8f0e8; color: #1e5c1e; }
+  .note {
+    background: #fff3d6; border-radius: 8px; padding: 14px 18px; font-size: 14px; margin: 14px 0;
+  }
+  .foot { text-align: center; font-size: 12px; color: #8a8a9e; margin-top: 30px; }
+  .foot a { color: #5a5a8e; }
+  ul { padding-left: 22px; margin: 8px 0; }
+  li { margin-bottom: 6px; }
+  code { background: #ececf4; border-radius: 4px; padding: 1px 6px; font-size: 13px; }
+  a { color: #3a3a8e; }
+</style>
+</head>
+<body>
+
+<h1>Allocation Readiness Level — Public Scorecard</h1>
+<p class="sub">An evidence-linked assessment of whether agentic-payment protocols carry rules for <em>dividing</em> the value they move. Maintained by Ray R, Independent Researcher.</p>
+
+<div class="banner">
+  <strong>Scope: x402 only (payment-execution layer).</strong> Additional protocols and layers will be added in future revisions.
+  Assessments are version-stamped and may be revised as evidence accumulates. Every figure describes the frozen Dec 2025 – Apr 2026 window of the upstream CC0 dataset, not a live network.
+</div>
+
+<div class="verdict-strip">
+  <div>
+    <div class="big">x402 · Allocation dimension: ARL 0</div>
+    <div class="meta">"No allocation rule exists; value is captured by whoever controls the interface." — by the first question it fails</div>
+  </div>
+  <div class="meta">Snapshot 2026-09-07<br>Full audit: <a href="https://github.com/RayR-audit/arl-audit" style="color:#9fb0ff">github.com/RayR-audit/arl-audit</a></div>
+</div>
+
+<div class="note">
+  <strong>Read this correctly.</strong> ARL 0 on allocation is not a verdict that x402 fails at its own job. As a payment <em>execution</em> layer, x402 is genuinely strong: fund safety by design, no single mandatory facilitator, multi-network reach, verifiable on-chain settlement volume (see the replication section for what that volume does and does not evidence). The finding is scoping, not condemnation: x402 answers <em>who pays whom</em> and leaves <em>who deserves what share</em> to layers it does not govern. That residual question is what this scorecard tracks.
+</div>
+
+<h2>What is scored</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>Protocol</th><th>Layer</th><th>ARL (allocation)</th><th>Status</th></tr>
+  <tr>
+    <td><strong>x402</strong></td>
+    <td>Payment execution</td>
+    <td class="arl arl-0">0</td>
+    <td><span class="tag red">No allocation rule</span> <a href="https://github.com/RayR-audit/arl-audit/blob/main/audits/x402_v0.1_draft_20260907.md">Full audit v0.1 →</a></td>
+  </tr>
+  <tr>
+    <td><em>Additional protocols &amp; layers</em></td>
+    <td>Authorization / execution</td>
+    <td class="arl">—</td>
+    <td><span class="tag yellow">Forthcoming</span> <em>in progress</em></td>
+  </tr>
+</table>
+</div>
+
+<h2>The ARL scale (public 0–5)</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>Level</th><th>Criterion</th></tr>
+  <tr><td class="arl arl-0">0</td><td>No allocation rule exists; value is captured by whoever controls the interface</td></tr>
+  <tr><td class="arl arl-1">1</td><td>An allocation rule exists but is unverifiable (fails C1: external checkability)</td></tr>
+  <tr><td class="arl arl-2">2</td><td>Verifiable but single-party only (fails C2: multi-party compatibility)</td></tr>
+  <tr><td class="arl arl-3">3</td><td>Multi-party but capital-fused (fails C3: resistance to capital capture)</td></tr>
+  <tr><td class="arl arl-4">4</td><td>Capture-resistant but decoupled from realized value (fails C4: economic value connection)</td></tr>
+  <tr><td class="arl arl-5">5</td><td>Verifiable, multi-party, capture-resistant, and economically anchored</td></tr>
+</table>
+<p style="font-size:13px;color:#4a4a5e;margin-top:10px">Classification rule: a system is classified <strong>by the first question it fails</strong>, not forced onto the nearest rank. ARL is an analytical scale, not a certification standard.</p>
+</div>
+
+<h2>Why x402 scores 0 on allocation — evidence summary</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>#</th><th>Official claim (abridged — verbatim quotes in the full audit)</th><th>Evidence check</th></tr>
+  <tr><td>X1</td><td>"open, neutral standard for internet-native payments"</td><td><span class="tag yellow">Partially verifiable</span> Linux Foundation project; technical-spec authorship concentrated in one originating company; governance internals not independently checkable (gap G4)</td></tr>
+  <tr><td>X2</td><td>"Zero protocol fees"</td><td><span class="tag green">Verifiable</span> two independently checkable layers: no protocol fee; facilitator pricing public</td></tr>
+  <tr><td>X4</td><td>"Trust minimizing" — facilitator cannot move funds beyond client intent</td><td><span class="tag green">Verifiable by design</span> payment schemes constrain execution; facilitator is non-custodial. Fund safety ≠ value division</td></tr>
+  <tr><td>X5, X7</td><td>Network-agnostic; facilitator plurality</td><td><span class="tag green">Verifiable</span> multi-chain SDKs shipped; self-facilitation is a documented production path</td></tr>
+  <tr><td>—</td><td><em>Allocation rule</em></td><td><span class="tag red">Absent by inspection</span> no value-split scheme, allocation constraint type, or revenue-division primitive in the reviewed material</td></tr>
+</table>
+<p style="font-size:13px;color:#4a4a5e;margin-top:10px">Each row is quoted verbatim with source and snapshot date in the <a href="https://github.com/RayR-audit/arl-audit/blob/main/audits/x402_v0.1_draft_20260907.md">full audit</a>. Where a claim says nothing about value allocation, that silence is itself a finding.</p>
+</div>
+
+<h2>Gap list — what would raise the level</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>Gap</th><th>To reach</th><th>Description</th></tr>
+  <tr><td>G1</td><td>ARL 1</td><td>Any normative allocation rule or primitive: a value-split scheme, an allocation constraint type, a revenue-division extension point in the spec. Currently absent.</td></tr>
+  <tr><td>G2</td><td>Facilitator economics</td><td><span class="tag green">Largely closed for the incumbent facilitator</span> (public pricing); open for the broader ecosystem as it scales.</td></tr>
+  <tr><td>G3</td><td>ARL 2→3</td><td>If an allocation rule is added, it must be independently verifiable and usable by heterogeneous parties — not a single operator's private ledger.</td></tr>
+  <tr><td>G4</td><td>Governance evidence</td><td>Governance documents that make "open, neutral standard" independently checkable: member list, admission criteria, governance relationship between the Linux Foundation project and the originating company. <em>Evidence currently insufficient.</em></td></tr>
+</table>
+</div>
+
+<h2>Independent measurement — aggregate findings</h2>
+<div class="table-wrap">
+<p style="font-size:14px;margin-bottom:10px">As a first step toward open audit infrastructure, we replicated population-scale measurement from an orthogonal direction on the Base-chain settlement slice of a public CC0 BigQuery listing: <strong>52,652,290 settlements routed through 105 known facilitator addresses</strong> (99.86% of 52,723,702 rows in the raw listing). Events span <strong>2025-12-05 to 2026-04-14 (UTC, 131 days)</strong> — the period covered by the upstream dataset, which has not been updated since April 2026. Every figure below describes that frozen window, not a live network. Aggregate statistics only; full addresses withheld.</p>
+<table>
+  <tr><th>Finding</th><th>Value</th></tr>
+  <tr><td>Gini coefficient, payer-level totals</td><td class="arl arl-0">0.974 (settled value) · 0.967 (settlement count)</td></tr>
+  <tr><td>Coordinated payer cohorts (behavioral fingerprinting + union-find clustering)</td><td><strong>181 cohorts · 52,008 wallets</strong> — roughly two-thirds of all paying addresses</td></tr>
+  <tr><td>Cohort share of activity</td><td><strong>at most 84.1% of settlement count, but only 24.9% of settled value</strong> (an upper bound — fingerprints capture behavioral similarity, not intent)</td></tr>
+  <tr><td>Diurnal rhythm separation (10³ volume stratum, 24h Fourier amplitude, median)</td><td>cohorts <strong>0.070</strong> vs the rest <strong>0.375</strong> — cohort wallets are near-round-the-clock, the rest are not</td></tr>
+</table>
+<p style="font-size:13px;color:#4a4a5e;margin-top:10px">Concentration alone proves nothing — the question is whether the concentrated part behaves like an operator or like many independent customers. The rhythm and ticket-size gaps above indicate that genuine, consumption-driven demand is materially lower than settlement counts suggest: settlement count measures <em>manufacturability</em>, not demand (gas is sponsored, and nothing on-chain marks who controls a payment). The complete report with full methodology, sensitivity grids, and replication files ships with the next version of this scorecard.</p>
+</div>
+
+<h2>Method &amp; limitations</h2>
+<div class="table-wrap">
+<ul style="font-size:14px">
+  <li>This page reflects a <strong>version-stamped snapshot</strong> (2026-09-07 sources). Conclusions expire with the snapshot; audits are re-snapshotted against future protocol versions.</li>
+  <li>"ARL 0" here applies to the <strong>allocation dimension of the payment-execution layer</strong>. It does not measure execution-layer quality, security, or adoption.</li>
+  <li>Standards are derived from <strong>the audited protocol's own published claims</strong>, not from an external rubric imposed on it.</li>
+  <li>Evidence marked "insufficient" was not treated as absence. G4 remains open until evidence is provided.</li>
+  <li>Absence findings are scoped to reviewed material. If an allocation primitive exists elsewhere in the spec, we want to know.</li>
+  <li>This methodology is v0.1 and itself expected to change.</li>
+</ul>
+</div>
+
+<div class="foot">
+  <p><strong>Corrections welcome.</strong> Misquoted claims, wrong versions, or missed evidence — open an issue or PR on the
+  <a href="https://github.com/RayR-audit/arl-audit">audit repository</a>. Corrections are merged with attribution.</p>
+  <p style="margin-top:8px">Ray R · Independent Researcher · Scorecard v1.0 · 2026-10-01 · <em>freeze window Dec 2025 – Apr 2026</em></p>
+</div>
+
+</body>
+</html>
