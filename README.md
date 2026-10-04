@@ -11,7 +11,9 @@ self-contained and every claim below is checkable from the files in this reposit
 
 | Path | What it is |
 |---|---|
-| `audits/x402_v0.2_draft_20260919.md` | The full audit report (x402, v0.2) — claim-by-claim evidence table with snapshot dates |
+| `audits/x402_v0.2_20261004.pdf` | **The audit report (x402, v0.2), published release artifact** — identical text to the Zenodo deposit of this version |
+| `audits/x402_v0.2_20261004.md` | Markdown source of the v0.2 release artifact |
+| `audits/x402_v0.2_draft_20260919.md` | Pre-release draft of v0.2, kept so that the evolution of claims is auditable |
 | `audits/x402_v0.1_draft_20260907.md` | The earlier draft, kept so that the evolution of claims is auditable |
 | `scorecard/index.html` | Static evaluation scorecard (published at the project's landing page) |
 | `notes/data_note_1_preliminary_20260916.md` | Preliminary data note (published on Zenodo; see below) |
