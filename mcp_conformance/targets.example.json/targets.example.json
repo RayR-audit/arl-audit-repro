@@ -1,7 +1,0 @@
-[
- {
-  "id": "example",
-  "repo": "<owner>/<repo>",
-  "registry_name": "<namespace>/<server>"
- }
-]
