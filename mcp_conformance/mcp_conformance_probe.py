@@ -18,7 +18,7 @@ Usage:
   python mcp_conformance_probe.py --stage registry     # cache registry listing
   python mcp_conformance_probe.py --stage targets      # per-target report
 """
-import json, re, os, sys, time, base64, urllib.request, urllib.error
+import json, re, os, sys, time, base64, urllib.request, urllib.error, urllib.parse
 
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36"
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -65,9 +65,68 @@ def gh_contents(repo, path=""):
         return None
 
 # ---------------- stage 1: registry cache ----------------
+# 上限修复（2026-10-24）：原 12 页 = 1200 条，registry 实际条目远超此数（search=dinglebear
+# 单关键词即 60+ 条），导致 BuyWhere / ClawFetch / dinglebear 三家被误判 ABSENT（假阴性）。
+# 修法两层：① 全量上限提到 60 页；② 新增 stage_registry_targeted 按 target 关键词定向 search，
+# 命中结果并入 cache（去重按 server.name + version）。ABSENT 结论只有在「全量 + 定向」都空时才可写。
+MAX_PAGES = 60
+
+def _merge_registry(extra, tag):
+    """把 extra 里的 server 条目并入 REG_CACHE（按 name+version 去重）。"""
+    if not os.path.exists(REG_CACHE):
+        cache = {"fetched": None, "count": 0, "servers": []}
+    else:
+        cache = json.load(open(REG_CACHE, encoding="utf-8"))
+    seen = set()
+    for e in cache.get("servers") or []:
+        s = e.get("server") or {}
+        seen.add((s.get("name"), s.get("version")))
+    added = 0
+    for e in extra:
+        s = e.get("server") or {}
+        k = (s.get("name"), s.get("version"))
+        if k in seen:
+            continue
+        seen.add(k)
+        cache["servers"].append(e)
+        added += 1
+    cache["count"] = len(cache["servers"])
+    cache["fetched"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    cache.setdefault("extra_sources", [])
+    cache["extra_sources"].append({"stage": tag, "added": added})
+    json.dump(cache, open(REG_CACHE, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    print("MERGED[%s] +%d -> total %d" % (tag, added, cache["count"]))
+    return cache
+
+def stage_registry_targeted():
+    """按 target 的 owner/repo 关键词定向 search，补全全量抓取漏掉的条目。"""
+    extra = []
+    for t in TARGETS:
+        repo = t["repo"]
+        owner, _, name = repo.partition("/")
+        for q in {owner, name, repo}:
+            if not q:
+                continue
+            url = REG_API + "?search=" + urllib.parse.quote(q) + "&limit=100"
+            st, body = fetch(url)
+            if st != 200:
+                print("search %r -> %s" % (q, st)); continue
+            try:
+                j = json.loads(body)
+            except Exception:
+                continue
+            got = j.get("servers") or []
+            extra.extend(got)
+            print("search %-30r +%d" % (q, len(got)))
+            time.sleep(1.2)
+    if extra:
+        _merge_registry(extra, "targeted_search")
+    else:
+        print("targeted search: 0 entries")
+
 def stage_registry():
     out, url, pages = [], REG_API + "?limit=100", 0
-    while url and pages < 12:
+    while url and pages < MAX_PAGES:
         st, body = fetch(url)
         if st != 200:
             print("registry page %d -> %s" % (pages, st)); break
@@ -121,24 +180,70 @@ def stage_targets():
         repo, rname = t["repo"], t["registry_name"]
         rep = {"target": t, "checks": []}
         # --- registry side ---
-        hit = None
-        for e in reg:
-            s = e.get("server") or {}
-            if rname and s.get("name") == rname:
-                hit = e; break
+        # 2026-10-24 修复：ABSENT 不得只依赖 cache 命中。cache 来自全量枚举，而 registry 无总数、
+        # 实测 >6000 条且仍有 next，历史 12 页上限导致 3 家假阴性。故：cache 未命中 → 现场定向 search
+        # → 合并 cache 后重试匹配。只有「cache + 现场 search 三关键词变体」全空，才允许写 ABSENT。
+        def _off(e):
+            return ((e.get("_meta") or {}).get("io.modelcontextprotocol.registry/official") or {})
+
+        def _pick_latest(cands):
+            """Among entries with the same server name, the registry keeps one row per
+            published version. The *current* declaration is the one flagged
+            isLatest=True -- NOT the first row returned (which is the oldest version).
+            Picking the first row silently turns a PASS into a false DIFF."""
+            if not cands:
+                return None
+            flagged = [e for e in cands if _off(e).get("isLatest")]
+            if flagged:
+                return flagged[0]
+            return sorted(cands, key=lambda e: (_off(e).get("publishedAt") or ""))[-1]
+
+        def _match(entries):
+            by_name = [e for e in entries if rname and ((e.get("server") or {}).get("name")) == rname]
+            if by_name:
+                return _pick_latest(by_name)
+            by_repo = [e for e in entries
+                       if repo.lower() in (((e.get("server") or {}).get("repository") or {}).get("url") or "").lower()]
+            return _pick_latest(by_repo)
+
+        hit = _match(reg)
+        live_search_used = False
         if hit is None:
-            for e in reg:
-                s = e.get("server") or {}
-                rurl = ((s.get("repository") or {}).get("url") or "")
-                if repo.lower() in rurl.lower():
-                    hit = e; break
+            live_search_used = True
+            owner, _, rname_only = repo.partition("/")
+            live = []
+            for q in {owner, rname_only, repo}:
+                if not q:
+                    continue
+                u = REG_API + "?search=" + urllib.parse.quote(q) + "&limit=100"
+                st, body = fetch(u)
+                if st != 200:
+                    print("  live search %r -> %s" % (q, st)); continue
+                try:
+                    j = json.loads(body)
+                except Exception:
+                    continue
+                got = j.get("servers") or []
+                live.extend(got)
+                print("  live search %-30r +%d" % (q, len(got)))
+                time.sleep(1.2)
+            if live:
+                _merge_registry(live, "live_" + repo.replace("/", "_"))
+                reg = json.load(open(REG_CACHE, encoding="utf-8"))["servers"]
+                hit = _match(reg)
         entry = (hit or {}).get("server") or {}
+        # 同 name 在 registry 的版本行数（用于 C4 口径可核查：>1 时必须取 isLatest）
+        _n_versions = len([e for e in reg if rname and ((e.get("server") or {}).get("name")) == rname])
         meta = ((hit or {}).get("_meta") or {}).get("io.modelcontextprotocol.registry/official") or {}
         rep["registry"] = {"listed": bool(hit), "name": entry.get("name"), "version": entry.get("version"),
                            "packages": [p.get("identifier") for p in (entry.get("packages") or [])],
                            "remotes": [r.get("type") for r in (entry.get("remotes") or [])],
                            "repository": (entry.get("repository") or {}).get("url"),
-                           "status": meta.get("status"), "updatedAt": meta.get("updatedAt")}
+                           "status": meta.get("status"), "updatedAt": meta.get("updatedAt"),
+                           # 2026-10-24 补：版本选取必须可核查 —— 同 name 在 registry 有
+                           # 多行（每发布一版一行），C4 只能比 isLatest 那一行。
+                           "isLatest": meta.get("isLatest"), "publishedAt": meta.get("publishedAt"),
+                           "versions_in_registry": _n_versions}
         def add(cid, status, detail):
             rep["checks"].append({"id": cid, "status": status, "detail": detail})
         # C1 listed
@@ -202,5 +307,6 @@ if __name__ == "__main__":
     stage = sys.argv[sys.argv.index("--stage") + 1] if "--stage" in sys.argv else "all"
     if stage in ("registry", "all"):
         stage_registry()
+        stage_registry_targeted()
     if stage in ("targets", "all"):
         stage_targets()
