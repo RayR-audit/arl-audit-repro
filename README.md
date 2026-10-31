@@ -1,5 +1,10 @@
 # arl-audit-repro — reproducible evaluation pack
 
+> **Superseding package (2026-10-31):** a newer, self-contained reproduction package for the
+> registry-gap audit is published at <https://github.com/RayR-audit/x402-registry-gap-audit>.
+> This repository remains the supplement to *x402 Allocation Readiness Audit — v0.2*
+> (<https://doi.org/10.5281/zenodo.23125475>).
+
 Public companion to an independent audit of the **x402** agent-payment protocol stack. This
 repository carries **method and results**, and deliberately carries **no settlement data and no
 address-level scoring**.
